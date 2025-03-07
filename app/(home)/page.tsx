@@ -1,23 +1,15 @@
 "use client";
-
-import Image from "next/image";
-import { Button } from "@/components/ui/button";
+import { useAppDispath, useAppSelector } from "@/redex/store";
+import { increment } from "@/redex/user";
 
 export default function Home() {
+  const dispatch = useAppDispath();
+  const value = useAppSelector((state) => state.user);
+
   return (
     <div>
-      <Image
-        src="/yt.svg"
-        width={50}
-        height={50}
-        priority
-        style={{
-          width: "50px",
-          height: "50px",
-        }}
-        alt="yt"
-      />
-      <h1 className=" text-xl font-semibold tracking-tight">Home</h1>
+      接下來我會在這邊實作 B<div>{value.value}</div>
+      <button onClick={() => dispatch(increment())}>+1</button>
     </div>
   );
 }
