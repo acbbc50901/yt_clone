@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { RedexProvider } from "@/redex/provider";
+import ClientLayout from "@/lib/ClientLayout";
+import StyledComponentsRegistry from "@/lib/StyledComponentsRegistry";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
@@ -17,7 +18,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <RedexProvider>{children}</RedexProvider>
+        {/* <StyledComponentsRegistry> */}
+        <ClientLayout>{children}</ClientLayout>
+        {/* </StyledComponentsRegistry> */}
       </body>
     </html>
   );

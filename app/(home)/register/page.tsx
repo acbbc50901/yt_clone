@@ -4,7 +4,11 @@ import { InputBox } from "@/components/ui/InputBox";
 import styled from "styled-components";
 import { Button } from "@/components/ui/button";
 import { containsChinese } from "@/fn/Fns";
-interface RegisterReqProps {
+import { callApi } from "@/fn";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
+
+export interface RegisterReqProps {
   email: string;
   username: string;
   password: string;
@@ -44,7 +48,7 @@ export default function Register() {
     password: "",
     check_password: "",
   });
-  console.log(req, "req");
+  const router = useRouter();
 
   // 驗證表單
   const checkError = (): boolean => {
@@ -99,11 +103,21 @@ export default function Register() {
     });
   };
   // 送出表單
-  const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (checkError()) return;
     setErrors(null);
-    console.log("hi");
+    let _req: Omit<RegisterReqProps, "check_password"> & {
+      check_password?: string;
+    } = { ...req };
+    delete _req.check_password;
+    const res = await callApi("/api/auth/register", "POST", _req);
+    if (res.status === 201) {
+      toast.success("註冊成功");
+      router.push("/");
+    } else if (res.status === 400) {
+      toast.error(res.msg);
+    }
   };
 
   return (

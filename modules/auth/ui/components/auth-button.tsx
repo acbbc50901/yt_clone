@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { FaGoogle } from "react-icons/fa";
 import { CustomDialog } from "@/modules/home/ui/components/dialog";
@@ -10,6 +10,10 @@ import { Separator } from "@/components/ui/separator";
 import { Login } from "./login";
 import { OtherButton } from "./other-button";
 import { useRouter } from "next/navigation";
+import { useAppDispath, useAppSelector } from "@/redex/store";
+import { MemberButton } from "./member-button";
+import { setUser as setStoreUser } from "@/redex/user";
+
 const Roots = styled.div`
   display: flex;
   flex-direction: column;
@@ -34,10 +38,16 @@ const Note = styled.p`
   }
 `;
 
-const Content = ({ toRegister }: { toRegister: () => void }) => {
+const Content = ({
+  toRegister,
+  onClose,
+}: {
+  toRegister: () => void;
+  onClose: () => void;
+}) => {
   return (
     <Roots>
-      <Login />
+      <Login onClose={onClose} />
       <Note onClick={toRegister}>還沒註冊過帳號？</Note>
       <Separator />
       <ButtonList>
@@ -50,12 +60,28 @@ const Content = ({ toRegister }: { toRegister: () => void }) => {
 export default function AuthButton() {
   // 新增不同狀態
   const [open, setOpen] = useState(false);
+  const [user, setUser] = useState(null);
+  const UserStore = useAppSelector((state) => state.user);
+  const dispatch = useAppDispath();
+  const storedUser =
+    typeof window !== "undefined" ? localStorage?.getItem("user") : null;
+  const localUser = storedUser ? JSON.parse(storedUser) : null;
+  console.log("user", user);
+  useEffect(() => {
+    if (!!localUser && !user) {
+      setUser(localUser);
+      dispatch(setStoreUser(localUser));
+    }
+    console.log("localUser", localUser, user);
+  }, [localUser]);
   const router = useRouter();
   const toRegister = () => {
     setOpen(false);
     router.push("/register");
   };
-  return (
+  return !!user ? (
+    <MemberButton user={user} setUser={setUser} />
+  ) : (
     <>
       <Button
         onClick={() => setOpen(true)}
@@ -70,7 +96,9 @@ export default function AuthButton() {
         description="可以使用以下方式進行登入"
         open={open}
         onClose={() => setOpen(false)}
-        content={<Content toRegister={toRegister} />}
+        content={
+          <Content onClose={() => setOpen(false)} toRegister={toRegister} />
+        }
       />
     </>
   );
