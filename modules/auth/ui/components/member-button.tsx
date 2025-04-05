@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/popover";
 import { Separator } from "@/components/ui/separator";
 import { callApi } from "@/fn";
+import { useRouter } from "next/navigation";
 const Content = styled.div`
   display: flex;
   flex-direction: column;
@@ -63,6 +64,7 @@ export const MemberButton: React.FC<MemberButtonProps> = ({
 }) => {
   console.log(user);
   const [open, setOpen] = useState(false);
+  const router = useRouter();
   const logout = async () => {
     const res = await callApi("api/auth/logout", "POST");
     if (res.status !== 200) {
@@ -72,6 +74,7 @@ export const MemberButton: React.FC<MemberButtonProps> = ({
       // 清除 localStorage
       localStorage.removeItem("user");
       setUser(null);
+      router.refresh();
     }
     console.log("登出成功", res);
   };
